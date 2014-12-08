@@ -24,5 +24,5 @@ var s1 = emptyScene
         ['0_2', ['0_2', '0_0']]
     ])
 
-// console.log(JSON.stringify(s1));
+console.log(JSON.stringify(s1));
 console.log(s1.toJS());
