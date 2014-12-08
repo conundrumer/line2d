@@ -15,13 +15,10 @@ module Line2D {
     interface LineMap extends Map<LineID, Line> {}
 
     export interface ObjVec { x: number; y: number; }
-    export interface ObjLine { p: PointID; q: PointID; }
-    export interface PointsJS { [pid: string] : ObjVec }
-    export interface LinesJS { [lid: string] : ObjLine }
-    export interface SceneJS {
-        points: PointsJS;
-        lines: LinesJS;
-    }
+    export interface EndPoints { p: PointID; q: PointID; }
+    export interface PointsObj { [pid: string] : ObjVec }
+    export interface LinesObj { [lid: string] : EndPoints }
+    export interface SceneObj { points: PointsObj; lines: LinesObj; }
 
     class Point {
         constructor(private pos: TupleVec, private lineSet: Set<LineID>) { }
@@ -54,7 +51,7 @@ module Line2D {
         get p() : PointID { return this.pids[0] }
         get q() : PointID { return this.pids[1] }
 
-        get pq() : ObjLine { return { p: this.pids[0], q: this.pids[1] }; }
+        get pq() : EndPoints { return { p: this.pids[0], q: this.pids[1] }; }
     }
 
     function newLine(pids: [PointID, PointID]) : Line {
@@ -62,16 +59,16 @@ module Line2D {
     }
 
 
-    export function toPoints(pointProps: [PointID, TupleVec][]) : PointsJS {
-        var points: PointsJS = {};
+    export function toPoints(pointProps: [PointID, TupleVec][]) : PointsObj {
+        var points: PointsObj = {};
         pointProps.forEach( p => {
             points[p[0]] = { x: p[1][0], y: p[1][1] };
         });
         return points;
     }
 
-    export function toLines(lineProps: [LineID, [PointID, PointID]][]) : LinesJS {
-        var lines: LinesJS = {};
+    export function toLines(lineProps: [LineID, [PointID, PointID]][]) : LinesObj {
+        var lines: LinesObj = {};
         lineProps.forEach( l => {
             lines[l[0]] = { p: l[1][0], q: l[1][1] };
         });
@@ -82,15 +79,23 @@ module Line2D {
         return new Scene(Map<PointID, Point>(), Map<LineID, Line>());
     }
 
-    export function makeSceneFromJS(scene: SceneJS) : Scene {
+    export function makeSceneFromJS(scene: SceneObj) : Scene {
         return newScene().addPoints(scene.points).addLines(scene.lines);
     }
 
     interface PointLinesMap extends Map<PointID, Set<LineID>> {}
+    function toPointLinesMap (line, lid) {
+        var lines = Set<LineID>([lid]);
+        return Map<PointID, Set<LineID>>().set(line.p, lines).set(line.q, lines);
+    }
+    function combinePointLinesMaps (pMap, qMap) {
+        var setUnion = (pLines, qLines) => pLines.union(qLines)
+        return pMap.mergeWith(setUnion, qMap);
+    }
     class Scene {
         constructor(private points: PointMap, private lines: LineMap) { }
 
-        public toJS() : SceneJS {
+        public toJS() : SceneObj {
             return {
                 points: this.points.map( point => point.xy ).toJS(),
                 lines: this.lines.map( line => line.pq ).toJS()
@@ -101,7 +106,7 @@ module Line2D {
             return new Scene(this.points.set(id, newPoint(pos)), this.lines);
         }
 
-        public addPoints(points: PointsJS) : Scene {
+        public addPoints(points: PointsObj) : Scene {
             var newPoints = Map(points).map(p => newPoint([p.x, p.y]));
             return new Scene(
                 this.points.merge(newPoints),
@@ -116,26 +121,17 @@ module Line2D {
             return new Scene(points, this.lines.set(lid, newLine(pids)));
         }
 
-        public addLines(lines: LinesJS) : Scene {
+        public addLines(lines: LinesObj) : Scene {
             var empty: PointLinesMap = Map<PointID, Set<LineID>>();
-
-            function toPointLinesMap (line, lid) {
-                var lines = Set<LineID>([lid]);
-                return empty.set(line.p, lines).set(line.q, lines);
-            }
-            function combinePointLinesMaps (pMap, qMap) {
-                var setUnion = (pLines, qLines) => pLines.union(qLines)
-                return pMap.mergeWith(setUnion, qMap);
-            }
-
-            var lineMap = Map<LineID, ObjLine>(lines);
-            var newLines = lineMap.map<Line>(line => newLine([line.p, line.q]));
+            var lineMap = Map<LineID, EndPoints>(lines);
 
             var updatedPoints: PointMap = lineMap.toSeq()
                 .map<PointLinesMap>(toPointLinesMap)
                 .reduce<PointLinesMap>(combinePointLinesMaps, empty)
                 .map<Point>( (lines, pid) => this.points.get(pid).addLines(lines) )
                 .toMap();
+
+            var newLines = lineMap.map<Line>(line => newLine([line.p, line.q]));
 
             return new Scene(
                 this.points.merge(updatedPoints),
