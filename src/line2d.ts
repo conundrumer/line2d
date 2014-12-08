@@ -3,26 +3,35 @@ import im = require('immutable');
 
 module Line2D {
     class Point {
-        public x: number;
-        public y: number;
-        constructor(pos: [number, number]) {
-            this.x = pos[0];
-            this.y = pos[1];
-        }
+        constructor(private pos: [number, number]) { }
+
+        get x() : number { return this.pos[0] }
+        get y() : number { return this.pos[1] }
+
+        get xy() : ObjVec2 { return { x: this.pos[0], y: this.pos[1] } }
+
+        // public addLine:
     }
 
     class Line {
-        public p: string;
-        public q: string;
-        constructor(pids: [string, string]) {
-            this.p = pids[0];
-            this.q = pids[1];
+        constructor(private pids: [string, string]) { }
+
+        get p() : string { return this.pids[0] }
+        get q() : string { return this.pids[1] }
+
+        get pq() : { p: string; q: string; } {
+            return { p: this.pids[0], q: this.pids[1] };
         }
+    }
+
+    export interface ObjVec2 {
+        x: number;
+        y: number;
     }
 
     export interface SceneObject {
         points: {
-            [pid: string] : { x: number; y: number; }
+            [pid: string] : ObjVec2
         };
         lines: {
             [lid: string] : { p: string; q: string; }
@@ -44,12 +53,8 @@ module Line2D {
 
         public toJS() : SceneObject {
             return {
-                points: this.points.map( point => {
-                    return { x: point.x, y: point.y };
-                }).toJS(),
-                lines: this.lines.map( line => {
-                    return { p: line.p, q: line.q };
-                }).toJS()
+                points: this.points.map( point => point.xy ).toJS(),
+                lines: this.lines.map( line => line.pq ).toJS()
             };
         }
 
@@ -78,10 +83,7 @@ module Line2D {
                 })
             );
         }
-
-
     }
-
 }
 
 declare var module;
