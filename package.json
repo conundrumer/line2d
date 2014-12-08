@@ -4,7 +4,7 @@
   "description": "Minimal and parallel physics simulator",
   "main": "dist/line2d.js",
   "dependencies": {
-    "immutable": "^2.5.0"
+    "immutable": "^3.3.0"
   },
   "devDependencies": {
     "browserify": "^6.1.0",
