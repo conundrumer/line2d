@@ -10,7 +10,7 @@ OUT=./dist
 
 all:
 	$(TSC) --declaration --target ES5 -m commonjs --outDir $(BUILD) $(SRC)/$(NAME)
-	$(BROWSERIFY) $(BUILD)/$(NAME).js -s Library -o $(OUT)/$(NAME).js
+	$(BROWSERIFY) $(BUILD)/$(NAME).js -s Line2D -o $(OUT)/$(NAME).js
 	cp $(BUILD)/$(NAME).d.ts $(OUT)
 
 clean:
