@@ -21,9 +21,9 @@ var s1 = emptyScene
         ['ca', ['c', 'a']]
     ]))
 
-// console.log(JSON.stringify(s1));
-// console.log(s1.toJS());
-// console.log(JSON.stringify(s1.removeLine('ab')));
-// console.log(JSON.stringify(s1.removeLines(['ab','bc'])));
-// console.log(JSON.stringify(s1.removePoint('a')));
-console.log(JSON.stringify(s1.removePoints(['a','b'])));
+console.log('stringify', JSON.stringify(s1));
+console.log('toJS', s1.toJS());
+console.log('removeLine',JSON.stringify(s1.removeLine('ab')));
+console.log('removeLines',JSON.stringify(s1.removeLines(['ab','bc'])));
+console.log('removePoint',JSON.stringify(s1.removePoint('a')));
+console.log('removePoints',JSON.stringify(s1.removePoints(['a','b'])));
