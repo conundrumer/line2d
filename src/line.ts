@@ -1,30 +1,44 @@
-///<reference path='../node_modules/immutable/dist/Immutable.d.ts'/>
-import Immutable = require('immutable');
-import point = require('./point');
+import im = require('immutable');
+import Point = require('./point');
 
-interface Point extends point.Point {}
+class Line {
+    constructor(private pids: [Point.ID, Point.ID]) { }
 
-type LineID = string;
-export type PointID = string;
-type TupleVec = [number, number];
+    get p() : Point.ID {
+        return this.pids[0]
+    }
+    get q() : Point.ID {
+        return this.pids[1]
+    }
 
-interface Map<K,V> extends Immutable.Map<K,V> {}
-interface Set<V> extends Immutable.Set<V> {}
-interface PointMap extends Map<PointID, Point> {}
-interface LineMap extends Map<LineID, Line> {}
-
-interface ObjVec { x: number; y: number; }
-export interface EndPoints { p: PointID; q: PointID; }
-
-export class Line {
-    constructor(private pids: [PointID, PointID]) { }
-
-    get p() : PointID { return this.pids[0] }
-    get q() : PointID { return this.pids[1] }
-
-    get pq() : EndPoints { return { p: this.pids[0], q: this.pids[1] }; }
+    get pq() : Line.EndPoints {
+        return {
+            p: this.pids[0],
+            q: this.pids[1]
+        };
+    }
 }
 
-export function newLine(pids: [PointID, PointID]) : Line {
-    return new Line(pids);
+module Line {
+    export type ID = string;
+    export interface EndPoints {
+        p: Point.ID;
+        q: Point.ID;
+    }
+
+    export interface Map extends im.Map<ID, Line> {}
+    export var Map = (a?:
+        (im.KeyedIterable<ID, Line>)
+        | (im.Iterable<any, [ID, Line]>)
+        | (Array<[ID, Line]>)
+        | ({[key: string]: Line})
+        | (im.Iterator<[ID, Line]>)
+        // | (/*im.Iterable<[ID, Line]>*/Object)
+        ): Line.Map => im.Map<ID, Line>(a);
+
+    export function create(pids: [Point.ID, Point.ID]) : Line {
+        return new Line(pids);
+    }
 }
+
+export = Line;

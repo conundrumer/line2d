@@ -1,41 +1,33 @@
-import Immutable = require('immutable');
-import point = require('./point');
-import line = require('./line');
+import Point = require('./point');
+import Line = require('./line');
+import Scene = require('./scene');
 
-interface Line extends line.Line {}
-interface Point extends point.Point {}
-
-var Map = Immutable.Map;
-var Set = Immutable.Set;
-
-var Point = point.Point;
-var Line = line.Line;
-
-var newPoint = point.newPoint;
-var newLine = line.newLine;
-
-import scene = require('./scene');
-var Scene = scene.Scene;
-
-export module Line2D {
+module Line2D {
 
     export type LineID = string;
     export type PointID = string;
-    export type TupleVec = [number, number];
+    export type PointTuple = [number, number];
 
-    interface Map<K,V> extends Immutable.Map<K,V> {}
-    interface Set<V> extends Immutable.Set<V> {}
-    // interface PointMap extends Map<PointID, Point> {}
-    // interface LineMap extends Map<LineID, Line> {}
+    export interface SceneObj {
+        points: PointsObj;
+        lines: LinesObj;
+    }
+    export interface PointsObj {
+        [pid: string] : PointObjVec
+    }
+    export interface LinesObj {
+        [lid: string] : LineEndPoints
+    }
+    export interface PointObjVec {
+        x: number;
+        y: number;
+    }
+    export interface LineEndPoints {
+        p: PointID;
+        q: PointID;
+    }
 
-    export interface ObjVec { x: number; y: number; }
-    export interface EndPoints { p: PointID; q: PointID; }
-
-    export interface PointsObj { [pid: string] : ObjVec }
-    export interface LinesObj { [lid: string] : EndPoints }
-    export interface SceneObj { points: PointsObj; lines: LinesObj; }
-
-    export function toPoints(pointProps: [PointID, TupleVec][]) : PointsObj {
+    export function toPoints(pointProps: Array<[PointID, PointTuple]>) : PointsObj {
         var points: PointsObj = {};
         pointProps.forEach( p => {
             points[p[0]] = { x: p[1][0], y: p[1][1] };
@@ -43,7 +35,7 @@ export module Line2D {
         return points;
     }
 
-    export function toLines(lineProps: [LineID, [PointID, PointID]][]) : LinesObj {
+    export function toLines(lineProps: Array<[LineID, [PointID, PointID]]>) : LinesObj {
         var lines: LinesObj = {};
         lineProps.forEach( l => {
             lines[l[0]] = { p: l[1][0], q: l[1][1] };
@@ -53,28 +45,28 @@ export module Line2D {
 
     export interface Scene {
         toJS(): SceneObj;
-        addPoint(id: PointID, pos: TupleVec): Scene;
+        addPoint(id: PointID, pos: PointTuple): Scene;
         addPoints(points: PointsObj): Scene;
         addLine(lid: LineID, pids: [PointID, PointID]): Scene;
         addLines(lines: LinesObj): Scene;
-        removeLine(lid: LineID): Scene;
-        removeLines(lids: LineID[]): Scene;
         removePoint(pid: PointID): Scene;
-        removePoints(pids: PointID[]): Scene;
+        removePoints(pids: Array<PointID>): Scene;
+        removeLine(lid: LineID): Scene;
+        removeLines(lids: Array<LineID>): Scene;
     }
     export function newScene() : Scene {
-        return new Scene(Map<PointID, Point>(), Map<LineID, Line>());
+        return Scene.create();
     }
 
     export function makeSceneFromJS(scene: SceneObj) : Scene {
-        return newScene().addPoints(scene.points).addLines(scene.lines);
+        return Scene.create().addPoints(scene.points).addLines(scene.lines);
     }
 }
 
+export = Line2D;
+
 declare var module;
 declare var define;
-interface Window { Line2D: any; }
-
 // https://github.com/umdjs/umd
 if (typeof module === "object" && module.exports) {
     // CommonJS (Node)
@@ -83,5 +75,5 @@ if (typeof module === "object" && module.exports) {
     // AMD
     define(function () { return Line2D; });
 } else {
-    // window.Line2D = Line2D;
+    window['Line2D'] = Line2D;
 }

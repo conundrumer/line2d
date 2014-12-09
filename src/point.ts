@@ -1,53 +1,61 @@
-///<reference path='../node_modules/immutable/dist/Immutable.d.ts'/>
-import Immutable = require('immutable');
-import line = require('./line')
+import im = require('immutable');
+import Set = require('./im/set');
+import Line = require('./line')
+import Vec = require('./vec');
 
-interface Line extends line.Line {}
+class Point {
+    constructor(private pos: Vec.Tuple, private lineSet: Set<Line.ID>) { }
 
-var Map = Immutable.Map;
-var Set = Immutable.Set;
+    get x() : number {
+        return this.pos[0]
+    }
+    get y() : number {
+        return this.pos[1]
+    }
 
-export type LineID = string;
-type PointID = string;
-export type TupleVec = [number, number];
+    get xy() : Vec.Obj {
+        return {
+            x: this.pos[0],
+            y: this.pos[1]
+        };
+    }
 
-interface Map<K,V> extends Immutable.Map<K,V> {}
-export interface Set<V> extends Immutable.Set<V> {}
-interface PointMap extends Map<PointID, Point> {}
-interface LineMap extends Map<LineID, Line> {}
-
-export interface ObjVec { x: number; y: number; }
-interface EndPoints { p: PointID; q: PointID; }
-
-export class Point {
-    constructor(private pos: TupleVec, private lineSet: Set<LineID>) { }
-
-    get x() : number { return this.pos[0] }
-    get y() : number { return this.pos[1] }
-
-    get xy() : ObjVec { return { x: this.pos[0], y: this.pos[1] } }
-
-    get lines() {
+    get lines() : Set<Line.ID> {
         return this.lineSet;
     }
 
-    public addLine(lid: LineID) : Point {
+    addLine(lid: Line.ID) : Point {
         return new Point(this.pos, this.lineSet.add(lid));
     }
 
-    public addLines(lids: Set<LineID>) : Point {
+    addLines(lids: Set<Line.ID>) : Point {
         return new Point(this.pos, this.lineSet.union(lids));
     }
 
-    public removeLine(lid: LineID) : Point {
+    removeLine(lid: Line.ID) : Point {
         return new Point(this.pos, this.lineSet.remove(lid));
     }
 
-    public removeLines(lids: Set<LineID>) : Point {
+    removeLines(lids: Set<Line.ID>) : Point {
         return new Point(this.pos, this.lineSet.subtract(lids));
     }
 }
 
-export function newPoint (pos: TupleVec) : Point {
-    return new Point(pos, Set<LineID>())
+module Point {
+    export type ID = string;
+    export interface Map extends im.Map<ID, Point> {}
+    export var Map = (a?:
+        (im.KeyedIterable<ID, Point>)
+        | (im.Iterable<any, [ID, Point]>)
+        | (Array<[ID, Point]>)
+        | ({[key: string]: Point})
+        | (im.Iterator<[ID, Point]>)
+        // | (/*im.Iterable<[ID, Point]>*/Object)
+        ): Point.Map => im.Map<ID, Point>(a);
+
+    export function create (pos: Vec.Tuple) : Point {
+        return new Point(pos, Set<Line.ID>())
+    }
 }
+
+export = Point;
