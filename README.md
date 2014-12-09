@@ -1,8 +1,8 @@
 Line2D
 ======
-A minimal and parallel physics simulator using Typescript and (currently) only pure functions. Ideally, deterministic across all platforms. At the moment, it's not optimized at all. All entities get copied on each physics step. The API will probably change once I figure out a good balance of mutability and immutability...
+A minimal and parallel physics simulator using Typescript and (currently) only pure functions. Ideally, deterministic across all platforms. The focus is on facilitating the creation of highly complex scenes/contraptions/mechanisms. Inspiration from Line Rider, Soda Constructor, and Phun/Algodoo.
 
-Inspiration from Line Rider, Soda Constructor, and Phun/Algodoo.
+At the moment, it's not optimized at all. A lot of stuff gets copied on each physics step. The API will probably change once I figure out a good balance of mutability and immutability...
 
 Features
 --------
