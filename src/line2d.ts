@@ -16,9 +16,6 @@ module Line2D {
 
     export interface ObjVec { x: number; y: number; }
     export interface EndPoints { p: PointID; q: PointID; }
-    export interface PointsObj { [pid: string] : ObjVec }
-    export interface LinesObj { [lid: string] : EndPoints }
-    export interface SceneObj { points: PointsObj; lines: LinesObj; }
 
     class Point {
         constructor(private pos: TupleVec, private lineSet: Set<LineID>) { }
@@ -39,6 +36,14 @@ module Line2D {
         public addLines(lids: Set<LineID>) : Point {
             return new Point(this.pos, this.lineSet.union(lids));
         }
+
+        public removeLine(lid: LineID) : Point {
+            return new Point(this.pos, this.lineSet.remove(lid));
+        }
+
+        public removeLines(lids: Set<LineID>) : Point {
+            return new Point(this.pos, this.lineSet.subtract(lids));
+        }
     }
 
     function newPoint (pos: TupleVec) : Point {
@@ -58,6 +63,9 @@ module Line2D {
         return new Line(pids);
     }
 
+    export interface PointsObj { [pid: string] : ObjVec }
+    export interface LinesObj { [lid: string] : EndPoints }
+    export interface SceneObj { points: PointsObj; lines: LinesObj; }
 
     export function toPoints(pointProps: [PointID, TupleVec][]) : PointsObj {
         var points: PointsObj = {};
@@ -84,14 +92,23 @@ module Line2D {
     }
 
     interface PointLinesMap extends Map<PointID, Set<LineID>> {}
-    function toPointLinesMap (line, lid) {
+    function toPointLinesMap (endPoints, lid) {
         var lines = Set<LineID>([lid]);
-        return Map<PointID, Set<LineID>>().set(line.p, lines).set(line.q, lines);
+        return Map<PointID, Set<LineID>>()
+            .set(endPoints.p, lines)
+            .set(endPoints.q, lines);
     }
     function combinePointLinesMaps (pMap, qMap) {
         var setUnion = (pLines, qLines) => pLines.union(qLines)
         return pMap.mergeWith(setUnion, qMap);
     }
+    function toPointLinesSeq (lineMap: Map<LineID, EndPoints>) {
+        var empty: PointLinesMap = Map<PointID, Set<LineID>>();
+        return lineMap.toSeq()
+            .map<PointLinesMap>(toPointLinesMap)
+            .reduce<PointLinesMap>(combinePointLinesMaps, empty)
+    }
+
     class Scene {
         constructor(private points: PointMap, private lines: LineMap) { }
 
@@ -122,12 +139,9 @@ module Line2D {
         }
 
         public addLines(lines: LinesObj) : Scene {
-            var empty: PointLinesMap = Map<PointID, Set<LineID>>();
             var lineMap = Map<LineID, EndPoints>(lines);
 
-            var updatedPoints: PointMap = lineMap.toSeq()
-                .map<PointLinesMap>(toPointLinesMap)
-                .reduce<PointLinesMap>(combinePointLinesMaps, empty)
+            var updatedPoints: PointMap = toPointLinesSeq(lineMap)
                 .map<Point>( (lines, pid) => this.points.get(pid).addLines(lines) )
                 .toMap();
 
@@ -137,6 +151,54 @@ module Line2D {
                 this.points.merge(updatedPoints),
                 this.lines.merge(newLines)
             );
+        }
+
+        public removeLine(lid: LineID): Scene {
+            var endPoints = this.lines.get(lid).pq;
+            var points = this.points
+                .update(endPoints.p, p => p.removeLine(lid))
+                .update(endPoints.q, p => p.removeLine(lid));
+            return new Scene(points, this.lines.remove(lid));
+        }
+
+        public removeLines(lids: LineID[]): Scene {
+            var lineMap = Map<LineID, Line>(lids.map(lid =>
+                [lid, this.lines.get(lid).pq]
+            ));
+
+            var updatedPoints: PointMap = toPointLinesSeq(lineMap)
+                .map<Point>( (lines, pid) => this.points.get(pid).removeLines(lines) )
+                .toMap();
+
+            // maps don't have subtract/difference so...
+            var lines = this.lines.withMutations(map =>
+                lids.forEach(lid => map.remove(lid))
+            );
+
+            return new Scene(this.points.merge(updatedPoints), lines);
+        }
+
+        public removePoint(pid: PointID): Scene {
+            var point = this.points.get(pid);
+
+            var scene = this.removeLines(point.lines.toJS());
+
+            return new Scene(scene.points.remove(pid), scene.lines);
+        }
+
+        public removePoints(pids: PointID[]): Scene {
+            var lines = pids
+                .map(pid => this.points.get(pid).lines)
+                .reduce( (lines1, lines2) => lines1.union(lines2) )
+
+            var scene = this.removeLines(lines.toJS());
+
+            // maps don't have subtract/difference so...
+            var points = scene.points.withMutations( map =>
+                pids.forEach(pid => map.remove(pid))
+            );
+
+            return new Scene(points, scene.lines);
         }
     }
 }

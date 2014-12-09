@@ -10,16 +10,20 @@ var L = Line2D.toLines;
 var emptyScene = Line2D.newScene();
 
 var s1 = emptyScene
-    .addPoint('0_0', [0, 0])
+    .addPoint('a', [0, 0])
     .addPoints(P([
-        ['0_1', [0, 1]],
-        ['0_2', [1, 0]]
+        ['b', [0, 1]],
+        ['c', [1, 0]]
     ]))
-    .addLine('0_0', ['0_0', '0_1'])
+    .addLine('ab', ['a', 'b'])
     .addLines(L([
-        ['0_1', ['0_1', '0_2']],
-        ['0_2', ['0_2', '0_0']]
+        ['bc', ['b', 'c']],
+        ['ca', ['c', 'a']]
     ]))
 
-console.log(JSON.stringify(s1));
-console.log(s1.toJS());
+// console.log(JSON.stringify(s1));
+// console.log(s1.toJS());
+// console.log(JSON.stringify(s1.removeLine('ab')));
+// console.log(JSON.stringify(s1.removeLines(['ab','bc'])));
+// console.log(JSON.stringify(s1.removePoint('a')));
+console.log(JSON.stringify(s1.removePoints(['a','b'])));
