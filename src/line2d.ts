@@ -45,42 +45,46 @@ module Line2D {
             breakThreshold?: number;
         }
     }
-
-    export function toPoints(pointProps: Array<[PointID, VecTuple]>) : PointsObj {
-        return pointProps.forEach( p => {
-            return {
-                id: p[0],
-                pos: {
-                    x: p[1][0],
-                    y: p[1][1]
-                }
-            }
-        })
+    export interface SceneObj {
+        points: {
+            [pids: string]: PointObj;
+        };
+        lines: {
+            [lids: string]: LineObj;
+        };
     }
 
-    export function toLines(lineProps: Array<[LineID, [PointID, PointID]]>) : LinesObj {
-        return pointProps.forEach( p => {
-            return {
-                id: l[0],
-                pq: {
-                    p: l[1][0],
-                    q: l[1][1]
-                }
+    export function toPoints(pointProps: Array<[PointID, VecTuple]>) : PointObj[] {
+        return pointProps.map( p => { return { // can't use {{}} for some reason
+            id: p[0],
+            pos: {
+                x: p[1][0],
+                y: p[1][1]
             }
-        })
+        }} );
+    }
+
+    export function toLines(lineProps: Array<[LineID, [PointID, PointID]]>) : LineObj[] {
+        return lineProps.map( l => { return {
+            id: l[0],
+            pq: {
+                p: l[1][0],
+                q: l[1][1]
+            }
+        }} );
     }
 
     export interface Scene {
         toJS(): SceneObj;
 
-        getPoint(pid: PointID): VecObj;
-        getPoints(pids: Array<PointID>): PointsObj;
-        getLine(lid: LineID): LinePointIDs;
-        getLines(lids: Array<LineID>): LinesObj;
+        // getPoint(pid: PointID): VecObj;
+        // getPoints(pids: Array<PointID>): PointsObj;
+        // getLine(lid: LineID): LinePointIDs;
+        // getLines(lids: Array<LineID>): LinesObj;
 
-        getLinesFromPoint(pid: PointID): Array<LineID>;
-        getLinesFromPoints(pids: Array<PointID>): { [pid: string]: Array<LineID>};
-        getLinesSetFromPoints(pids: Array<PointID>): Array<LineID>;
+        // getLinesFromPoint(pid: PointID): Array<LineID>;
+        // getLinesFromPoints(pids: Array<PointID>): { [pid: string]: Array<LineID>};
+        // getLinesSetFromPoints(pids: Array<PointID>): Array<LineID>;
 
         addPoint(point: PointObj): Scene;
         addPoints(points: Array<PointObj>): Scene;
@@ -92,8 +96,8 @@ module Line2D {
         removeLine(lid: LineID): Scene;
         removeLines(lids: Array<LineID>): Scene;
 
-        eraseLine(lid: LineID): Scene;
-        eraseLines(lids: Array<LineID>): Scene;
+        // eraseLine(lid: LineID): Scene;
+        // eraseLines(lids: Array<LineID>): Scene;
     }
     export function newScene() : Scene {
         return Scene.create();

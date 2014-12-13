@@ -36,8 +36,8 @@ module Line {
         // | (/*im.Iterable<[ID, Line]>*/Object)
         ): Line.Map => im.Map<ID, Line>(a);
 
-    export function create(pids: [Point.ID, Point.ID]) : Line {
-        return new Line(pids);
+    export function create(pq: EndPoints) : Line {
+        return new Line([pq.p, pq.q]);
     }
 }
 

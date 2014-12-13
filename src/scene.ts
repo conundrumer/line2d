@@ -36,37 +36,35 @@ class Scene implements Line2D.Scene {
         };
     }
 
-    public addPoint(id: Point.ID, pos: Vec.Tuple): Scene {
-        return new Scene(this.points.set(id, Point.create(pos)), this.lines);
+    public addPoint(point: Line2D.PointObj): Scene {
+        var points = this.points.set(point.id, Point.create(point.pos));
+        return new Scene(points, this.lines);
     }
 
-    public addPoints(points: Line2D.PointsObj) : Scene {
-        var newPoints = Map<Point.ID, Vec.Obj>(points).map(v =>
-            Point.create([v.x, v.y])
+    public addPoints(points: Array<Line2D.PointObj>) : Scene {
+        var newPoints = Map<Point.ID, Point>(
+            points.map( p => [p.id, Point.create(p.pos)] )
         );
-        return new Scene(
-            this.points.merge(newPoints),
-            this.lines
-        );
+        return new Scene(this.points.merge(newPoints), this.lines);
     }
 
-    public addLine(lid: Line.ID, pids: [Point.ID, Point.ID]): Scene {
+    public addLine(line: Line2D.LineObj): Scene {
         var points = this.points
-            .update(pids[0], p => p.addLine(lid))
-            .update(pids[1], p => p.addLine(lid))
-        return new Scene(points, this.lines.set(lid, Line.create(pids)));
+            .update(line.pq.p, p => p.addLine(line.id))
+            .update(line.pq.q, p => p.addLine(line.id));
+        return new Scene(points, this.lines.set(line.id, Line.create(line.pq)));
     }
 
-    public addLines(lines: Line2D.LinesObj) : Scene {
-        var linePointsMap = Map<Line.ID, Line.EndPoints>(lines);
+    public addLines(lines: Array<Line2D.LineObj>) : Scene {
+        var linePointsMap = Map<Line.ID, Line.EndPoints>(
+            lines.map( l => [l.id, l.pq] )
+        );
 
         var updatedPoints: Point.Map = toPointLinesSeq(linePointsMap)
             .map<Point>( (lines, pid) => this.points.get(pid).addLines(lines) )
             .toMap();
 
-        var newLines = linePointsMap.map<Line>(pq =>
-            Line.create([pq.p, pq.q])
-        );
+        var newLines = linePointsMap.map<Line>(Line.create);
 
         return new Scene(
             this.points.merge(updatedPoints),
@@ -82,7 +80,7 @@ class Scene implements Line2D.Scene {
         return new Scene(points, this.lines.remove(lid));
     }
 
-    public removeLines(lids: Line.ID[]): Scene {
+    public removeLines(lids: Array<Line.ID>): Scene {
         var linePointsMap = Map<Line.ID, Line.EndPoints>(lids.map(lid =>
             [lid, this.lines.get(lid)]
         ));
@@ -107,7 +105,7 @@ class Scene implements Line2D.Scene {
         return new Scene(scene.points.remove(pid), scene.lines);
     }
 
-    public removePoints(pids: Point.ID[]): Scene {
+    public removePoints(pids: Array<Point.ID>): Scene {
         var lines = pids
             .map(pid => this.points.get(pid).lines)
             .reduce( (lines1, lines2) => lines1.union(lines2) )

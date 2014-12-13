@@ -10,12 +10,12 @@ var L = Line2D.toLines;
 var emptyScene = Line2D.newScene();
 
 var s1 = emptyScene
-    .addPoint('a', [0, 0])
+    .addPoint(P([['a', [0, 0]]])[0])
     .addPoints(P([
         ['b', [0, 1]],
         ['c', [1, 0]]
     ]))
-    .addLine('ab', ['a', 'b'])
+    .addLine(L([['ab', ['a', 'b']]])[0])
     .addLines(L([
         ['bc', ['b', 'c']],
         ['ca', ['c', 'a']]

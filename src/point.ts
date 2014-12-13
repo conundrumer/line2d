@@ -53,8 +53,8 @@ module Point {
         // | (/*im.Iterable<[ID, Point]>*/Object)
         ): Point.Map => im.Map<ID, Point>(a);
 
-    export function create (pos: Vec.Tuple) : Point {
-        return new Point(pos, Set<Line.ID>())
+    export function create (pos: Vec.Obj) : Point {
+        return new Point([pos.x, pos.y], Set<Line.ID>())
     }
 }
 
