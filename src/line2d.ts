@@ -95,6 +95,7 @@ module Line2D {
         removeLine(lid: LineID): Scene;
         removeLines(lids: Array<LineID>): Scene;
 
+        // removes points not attached to any lines as well
         eraseLine(lid: LineID): Scene;
         eraseLines(lids: Array<LineID>): Scene;
     }
