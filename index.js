@@ -27,3 +27,10 @@ console.log('removeLine',JSON.stringify(s1.removeLine('ab')));
 console.log('removeLines',JSON.stringify(s1.removeLines(['ab','bc'])));
 console.log('removePoint',JSON.stringify(s1.removePoint('a')));
 console.log('removePoints',JSON.stringify(s1.removePoints(['a','b'])));
+
+console.log('getPoint', s1.getPoint('a'))
+console.log('getPoints', s1.getPoints(['b','c']))
+console.log('getLine', s1.getLine('ab'))
+console.log('getLines', s1.getLines(['bc','ca']))
+console.log('getLinesFromPoint', s1.getLinesFromPoint('a'))
+console.log('getLinesFromPoints', s1.getLinesFromPoints(['b','c']))

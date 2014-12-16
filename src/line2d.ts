@@ -77,14 +77,13 @@ module Line2D {
     export interface Scene {
         toJS(): SceneObj;
 
-        // getPoint(pid: PointID): VecObj;
-        // getPoints(pids: Array<PointID>): PointsObj;
-        // getLine(lid: LineID): LinePointIDs;
-        // getLines(lids: Array<LineID>): LinesObj;
+        getPoint(pid: PointID): PointObj;
+        getPoints(pids: Array<PointID>): Array<PointObj>;
+        getLine(lid: LineID): LineObj;
+        getLines(lids: Array<LineID>): Array<LineObj>;
 
-        // getLinesFromPoint(pid: PointID): Array<LineID>;
-        // getLinesFromPoints(pids: Array<PointID>): { [pid: string]: Array<LineID>};
-        // getLinesSetFromPoints(pids: Array<PointID>): Array<LineID>;
+        getLinesFromPoint(pid: PointID): Array<LineID>;
+        getLinesFromPoints(pids: Array<PointID>): Array<LineID>;
 
         addPoint(point: PointObj): Scene;
         addPoints(points: Array<PointObj>): Scene;
