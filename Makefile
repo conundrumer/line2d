@@ -1,7 +1,6 @@
 NAME=line2d
 BIN=./node_modules/.bin
-# TSC=$(BIN)/tsc
-TSC=node ../TypeScript/built/local/tsc.js
+TSC=$(BIN)/tsc
 BROWSERIFY=$(BIN)/browserify
 SRC=./src
 BUILD=./build
