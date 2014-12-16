@@ -95,8 +95,8 @@ module Line2D {
         removeLine(lid: LineID): Scene;
         removeLines(lids: Array<LineID>): Scene;
 
-        // eraseLine(lid: LineID): Scene;
-        // eraseLines(lids: Array<LineID>): Scene;
+        eraseLine(lid: LineID): Scene;
+        eraseLines(lids: Array<LineID>): Scene;
     }
     export function newScene() : Scene {
         return Scene.create();

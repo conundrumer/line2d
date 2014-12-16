@@ -34,3 +34,8 @@ console.log('getLine', s1.getLine('ab'))
 console.log('getLines', s1.getLines(['bc','ca']))
 console.log('getLinesFromPoint', s1.getLinesFromPoint('a'))
 console.log('getLinesFromPoints', s1.getLinesFromPoints(['b','c']))
+
+console.log('eraseLine', s1.eraseLine('ab').toJS())
+console.log('eraseLine', s1.eraseLine('ab').eraseLine('bc').toJS())
+console.log('eraseLines', s1.eraseLines(['bc','ca']).toJS())
+console.log('eraseLines', s1.eraseLines(['bc','ca','ab']).toJS())

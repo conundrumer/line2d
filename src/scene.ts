@@ -155,6 +155,46 @@ class Scene implements Line2D.Scene {
 
         return new Scene(points, scene.lines);
     }
+
+    eraseLine(lid: Line.ID): Scene {
+        var pq = this.lines.get(lid).pq;
+        var points = this.points
+            .update(pq.p, p => p.removeLine(lid))
+            .update(pq.q, p => p.removeLine(lid));
+        points = points.get(pq.p).lines.count() > 0 ? points
+            : points.remove(pq.p);
+        points = points.get(pq.q).lines.count() > 0 ? points
+            : points.remove(pq.q);
+        return new Scene(points, this.lines.remove(lid));
+    }
+
+    eraseLines(lids: Array<Line.ID>): Scene {
+        var linePointsMap = Map<Line.ID, Line.EndPoints>(lids.map(lid =>
+            [lid, this.lines.get(lid)]
+        ));
+
+        var pointLinesSeq = toPointLinesSeq(linePointsMap);
+
+        var updatedPoints: Point.Map = pointLinesSeq
+            .map<Point>( (lines, pid) => this.points.get(pid).removeLines(lines) )
+            .toMap();
+
+        var points = this.points.merge(updatedPoints);
+
+        points = points.withMutations(map =>
+            pointLinesSeq.forEach((_, pid) =>
+                updatedPoints.get(pid).lines.count() > 0 ? null
+                : map.remove(pid)
+            )
+        );
+
+        // maps don't have subtract/difference so...
+        var lines = this.lines.withMutations(map =>
+            lids.forEach(lid => map.remove(lid))
+        );
+
+        return new Scene(points, lines);
+    }
 }
 
 module Scene {
