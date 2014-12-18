@@ -74,30 +74,25 @@ module Line2D {
         }} );
     }
 
+    export interface Entities<ID, Obj> {
+        get(id: ID | Array<ID>): Array<Obj>;
+        add(entity: Obj | Array<Obj>): Scene;
+        remove(id: ID | Array<ID>): Scene;
+    }
+
+    export interface Points extends Entities<PointID, PointObj> {}
+
+    export interface Lines extends Entities<LineID, LineObj> {
+        getFromPoints(id: PointID | Array<PointID>): Array<LineID>;
+        // like remove except also removes points not attached to any lines
+        erase(id: LineID | Array<LineID>): Scene;
+    }
+
     export interface Scene {
         toJS(): SceneObj;
 
-        getPoint(pid: PointID): PointObj;
-        getPoints(pids: Array<PointID>): Array<PointObj>;
-        getLine(lid: LineID): LineObj;
-        getLines(lids: Array<LineID>): Array<LineObj>;
-
-        getLinesFromPoint(pid: PointID): Array<LineID>;
-        getLinesFromPoints(pids: Array<PointID>): Array<LineID>;
-
-        addPoint(point: PointObj): Scene;
-        addPoints(points: Array<PointObj>): Scene;
-        addLine(line: LineObj): Scene;
-        addLines(lines: Array<LineObj>): Scene;
-
-        removePoint(pid: PointID): Scene;
-        removePoints(pids: Array<PointID>): Scene;
-        removeLine(lid: LineID): Scene;
-        removeLines(lids: Array<LineID>): Scene;
-
-        // removes points not attached to any lines as well
-        eraseLine(lid: LineID): Scene;
-        eraseLines(lids: Array<LineID>): Scene;
+        points: Points;
+        lines: Lines;
     }
     export function newScene() : Scene {
         return Scene.create();
