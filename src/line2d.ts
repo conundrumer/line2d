@@ -78,13 +78,13 @@ module Line2D {
         get(id: ID | Array<ID>): Array<Obj>;
         add(entity: Obj | Array<Obj>): Scene;
         remove(id: ID | Array<ID>): Scene;
-        getInRadius(pos: VecObj, radius: number): Array<ID>;
+        selectInRadius(pos: VecObj, radius: number): Array<ID>;
     }
 
     export interface Points extends Entities<PointID, PointObj> {}
 
     export interface Lines extends Entities<LineID, LineObj> {
-        getFromPoints(id: PointID | Array<PointID>): Array<LineID>;
+        selectFromPoints(id: PointID | Array<PointID>): Array<LineID>;
         // like remove except also removes points not attached to any lines
         erase(id: LineID | Array<LineID>): Scene;
     }

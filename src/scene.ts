@@ -45,15 +45,18 @@ class Scene implements Line2D.Scene {
             get: oneOrManyToArray(this.getPoint, this.getPoints),
             add: oneOrMany(this.addPoint, this.addPoints),
             remove: oneOrMany(this.removePoint, this.removePoints),
-            getInRadius: this.getPointsInRadius.bind(this)
+            selectInRadius: this.selectPointsInRadius.bind(this)
         };
         this.lineMethods = {
             get: oneOrManyToArray(this.getLine, this.getLines),
             add: oneOrMany(this.addLine, this.addLines),
             remove: oneOrMany(this.removeLine, this.removeLines),
-            getFromPoints: oneOrMany(this.getLinesFromPoint, this.getLinesFromPoints),
+            selectFromPoints: oneOrMany(
+                this.selectLinesFromPoint,
+                this.selectLinesFromPoints
+            ),
             erase: oneOrMany(this.eraseLine, this.eraseLines),
-            getInRadius: this.getLinesInRadius.bind(this)
+            selectInRadius: this.selectLinesInRadius.bind(this)
         }
     }
 
@@ -96,12 +99,12 @@ class Scene implements Line2D.Scene {
         return lids.map(l => this.getLine(l));
     }
 
-    private getLinesFromPoint(pid: Point.ID): Array<Line.ID> {
+    private selectLinesFromPoint(pid: Point.ID): Array<Line.ID> {
         var point = this._points.get(pid);
         return point ? point.lines.toJS() : [];
     }
 
-    private getLinesFromPoints(pids: Array<Point.ID>): Array<Line.ID> {
+    private selectLinesFromPoints(pids: Array<Point.ID>): Array<Line.ID> {
         var noPoint = Point.create({x:0,y:0});
         return pids.map( p => this._points.get(p, noPoint).lines).reduce(
             (lines1, lines2) => lines1.union(lines2)
@@ -232,7 +235,7 @@ class Scene implements Line2D.Scene {
         return new Scene(points, lines);
     }
 
-    private getPointsInRadius(pos, r) {
+    private selectPointsInRadius(pos, r) {
         var dist = (p) => {
             var x = p.x - pos.x;
             var y = p.y - pos.y;
@@ -247,7 +250,7 @@ class Scene implements Line2D.Scene {
             .toArray();
     }
 
-    private getLinesInRadius(r) {
+    private selectLinesInRadius(r) {
         return [];
     }
 }
