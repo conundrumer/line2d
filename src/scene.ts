@@ -27,159 +27,193 @@ function combinePointLinesMaps (plMap1, plMap2) {
 }
 
 class Scene implements Line2D.Scene {
-    constructor(private points: Point.Map, private lines: Line.Map) { }
+    private pointMethods: Line2D.Points;
+    private lineMethods: Line2D.Lines;
 
-    toJS() : Line2D.SceneObj {
+    constructor(private _points: Point.Map, private _lines: Line.Map) {
+        var oneOrMany = (oneFn, manyFn) =>
+            (arr) => (arr instanceof Array)
+                ? manyFn.call(this, arr)
+                : oneFn.call(this, arr)
+
+        var oneOrManyToArray = (oneFn, manyFn) =>
+            (arr) => (arr instanceof Array)
+                ? manyFn.call(this, arr)
+                : [oneFn.call(this, arr)]
+
+        this.pointMethods = {
+            get: oneOrManyToArray(this.getPoint, this.getPoints),
+            add: oneOrMany(this.addPoint, this.addPoints),
+            remove: oneOrMany(this.removePoint, this.removePoints)
+        };
+        this.lineMethods = {
+            get: oneOrManyToArray(this.getLine, this.getLines),
+            add: oneOrMany(this.addLine, this.addLines),
+            remove: oneOrMany(this.removeLine, this.removeLines),
+            getFromPoints: oneOrMany(this.getLinesFromPoint, this.getLinesFromPoints),
+            erase: oneOrMany(this.eraseLine, this.eraseLines)
+        }
+    }
+
+    get points() {
+        return this.pointMethods;
+    }
+
+    get lines() {
+        return this.lineMethods;
+    }
+
+    toJS(): Line2D.SceneObj {
         return {
-            points: this.points.map( point => point.xy ).toJS(),
-            lines: this.lines.map( line => line.pq ).toJS()
+            points: this._points.map( point => point.xy ).toJS(),
+            lines: this._lines.map( line => line.pq ).toJS()
         };
     }
 
-    getPoint(pid: Point.ID): Line2D.PointObj {
-        var point = this.points.get(pid);
+    private getPoint(pid: Point.ID): Line2D.PointObj {
+        var point = this._points.get(pid);
         return point ? {
             id: pid,
             pos: point.xy
         } : null
     }
 
-    getPoints(pids: Array<Point.ID>): Array<Line2D.PointObj> {
+    private getPoints(pids: Array<Point.ID>): Array<Line2D.PointObj> {
         return pids.map(p => this.getPoint(p));
     }
 
-    getLine(lid: Line.ID): Line2D.LineObj {
-        var line = this.lines.get(lid);
+    private getLine(lid: Line.ID): Line2D.LineObj {
+        var line = this._lines.get(lid);
         return line ? {
             id: lid,
             pq: line.pq
         } : null
     }
 
-    getLines(lids: Array<Line.ID>): Array<Line2D.LineObj> {
+    private getLines(lids: Array<Line.ID>): Array<Line2D.LineObj> {
         return lids.map(l => this.getLine(l));
     }
 
-    getLinesFromPoint(pid: Point.ID): Array<Line.ID> {
-        var point = this.points.get(pid);
+    private getLinesFromPoint(pid: Point.ID): Array<Line.ID> {
+        var point = this._points.get(pid);
         return point ? point.lines.toJS() : [];
     }
 
-    getLinesFromPoints(pids: Array<Point.ID>): Array<Line.ID> {
+    private getLinesFromPoints(pids: Array<Point.ID>): Array<Line.ID> {
         var noPoint = Point.create({x:0,y:0});
-        return pids.map( p => this.points.get(p, noPoint).lines).reduce(
+        return pids.map( p => this._points.get(p, noPoint).lines).reduce(
             (lines1, lines2) => lines1.union(lines2)
         ).toJS();
     }
 
-    addPoint(point: Line2D.PointObj): Scene {
-        var points = this.points.set(point.id, Point.create(point.pos));
-        return new Scene(points, this.lines);
+    private addPoint(point: Line2D.PointObj): Scene {
+        var points = this._points.set(point.id, Point.create(point.pos));
+        return new Scene(points, this._lines);
     }
 
     addPoints(points: Array<Line2D.PointObj>) : Scene {
         var newPoints = Map<Point.ID, Point>(
             points.map( p => [p.id, Point.create(p.pos)] )
         );
-        return new Scene(this.points.merge(newPoints), this.lines);
+        return new Scene(this._points.merge(newPoints), this._lines);
     }
 
-    addLine(line: Line2D.LineObj): Scene {
-        var points = this.points
+    private addLine(line: Line2D.LineObj): Scene {
+        var points = this._points
             .update(line.pq.p, p => p.addLine(line.id))
             .update(line.pq.q, p => p.addLine(line.id));
-        return new Scene(points, this.lines.set(line.id, Line.create(line.pq)));
+        return new Scene(points, this._lines.set(line.id, Line.create(line.pq)));
     }
 
-    addLines(lines: Array<Line2D.LineObj>) : Scene {
+    private addLines(lines: Array<Line2D.LineObj>): Scene {
         var linePointsMap = Map<Line.ID, Line.EndPoints>(
             lines.map( l => [l.id, l.pq] )
         );
 
         var updatedPoints: Point.Map = toPointLinesSeq(linePointsMap)
-            .map<Point>( (lines, pid) => this.points.get(pid).addLines(lines) )
+            .map<Point>( (lines, pid) => this._points.get(pid).addLines(lines) )
             .toMap();
 
         var newLines = linePointsMap.map<Line>(Line.create);
 
         return new Scene(
-            this.points.merge(updatedPoints),
-            this.lines.merge(newLines)
+            this._points.merge(updatedPoints),
+            this._lines.merge(newLines)
         );
     }
 
-    removeLine(lid: Line.ID): Scene {
-        var pq = this.lines.get(lid).pq;
-        var points = this.points
+    private removeLine(lid: Line.ID): Scene {
+        var pq = this._lines.get(lid).pq;
+        var points = this._points
             .update(pq.p, p => p.removeLine(lid))
             .update(pq.q, p => p.removeLine(lid));
-        return new Scene(points, this.lines.remove(lid));
+        return new Scene(points, this._lines.remove(lid));
     }
 
-    removeLines(lids: Array<Line.ID>): Scene {
+    private removeLines(lids: Array<Line.ID>): Scene {
         var linePointsMap = Map<Line.ID, Line.EndPoints>(lids.map(lid =>
-            [lid, this.lines.get(lid)]
+            [lid, this._lines.get(lid)]
         ));
 
         var updatedPoints: Point.Map = toPointLinesSeq(linePointsMap)
-            .map<Point>( (lines, pid) => this.points.get(pid).removeLines(lines) )
+            .map<Point>( (lines, pid) => this._points.get(pid).removeLines(lines) )
             .toMap();
 
         // maps don't have subtract/difference so...
-        var lines = this.lines.withMutations(map =>
+        var lines = this._lines.withMutations(map =>
             lids.forEach(lid => map.remove(lid))
         );
 
-        return new Scene(this.points.merge(updatedPoints), lines);
+        return new Scene(this._points.merge(updatedPoints), lines);
     }
 
-    removePoint(pid: Point.ID): Scene {
-        var point = this.points.get(pid);
+    private removePoint(pid: Point.ID): Scene {
+        var point = this._points.get(pid);
 
         var scene = this.removeLines(point.lines.toJS());
 
-        return new Scene(scene.points.remove(pid), scene.lines);
+        return new Scene(scene._points.remove(pid), scene._lines);
     }
 
-    removePoints(pids: Array<Point.ID>): Scene {
+    private removePoints(pids: Array<Point.ID>): Scene {
         var lines = pids
-            .map(pid => this.points.get(pid).lines)
+            .map(pid => this._points.get(pid).lines)
             .reduce( (lines1, lines2) => lines1.union(lines2) )
 
         var scene = this.removeLines(lines.toJS());
 
         // maps don't have subtract/difference so...
-        var points = scene.points.withMutations( map =>
+        var points = scene._points.withMutations( map =>
             pids.forEach(pid => map.remove(pid))
         );
 
-        return new Scene(points, scene.lines);
+        return new Scene(points, scene._lines);
     }
 
-    eraseLine(lid: Line.ID): Scene {
-        var pq = this.lines.get(lid).pq;
-        var points = this.points
+    private eraseLine(lid: Line.ID): Scene {
+        var pq = this._lines.get(lid).pq;
+        var points = this._points
             .update(pq.p, p => p.removeLine(lid))
             .update(pq.q, p => p.removeLine(lid));
         points = points.get(pq.p).lines.count() > 0 ? points
             : points.remove(pq.p);
         points = points.get(pq.q).lines.count() > 0 ? points
             : points.remove(pq.q);
-        return new Scene(points, this.lines.remove(lid));
+        return new Scene(points, this._lines.remove(lid));
     }
 
-    eraseLines(lids: Array<Line.ID>): Scene {
+    private eraseLines(lids: Array<Line.ID>): Scene {
         var linePointsMap = Map<Line.ID, Line.EndPoints>(lids.map(lid =>
-            [lid, this.lines.get(lid)]
+            [lid, this._lines.get(lid)]
         ));
 
         var pointLinesSeq = toPointLinesSeq(linePointsMap);
 
         var updatedPoints: Point.Map = pointLinesSeq
-            .map<Point>( (lines, pid) => this.points.get(pid).removeLines(lines) )
+            .map<Point>( (lines, pid) => this._points.get(pid).removeLines(lines) )
             .toMap();
 
-        var points = this.points.merge(updatedPoints);
+        var points = this._points.merge(updatedPoints);
 
         points = points.withMutations(map =>
             pointLinesSeq.forEach((_, pid) =>
@@ -189,7 +223,7 @@ class Scene implements Line2D.Scene {
         );
 
         // maps don't have subtract/difference so...
-        var lines = this.lines.withMutations(map =>
+        var lines = this._lines.withMutations(map =>
             lids.forEach(lid => map.remove(lid))
         );
 
