@@ -39,3 +39,5 @@ console.log('eraseLine', s1.lines.erase('ab').toJS())
 console.log('eraseLine', s1.lines.erase('ab').lines.erase('bc').toJS())
 console.log('eraseLines', s1.lines.erase(['bc','ca']).toJS())
 console.log('eraseLines', s1.lines.erase(['bc','ca','ab']).toJS())
+
+console.log('getPointsInRadius', s1.points.getInRadius({x: 0.1, y: 0}, 1))
