@@ -44,14 +44,16 @@ class Scene implements Line2D.Scene {
         this.pointMethods = {
             get: oneOrManyToArray(this.getPoint, this.getPoints),
             add: oneOrMany(this.addPoint, this.addPoints),
-            remove: oneOrMany(this.removePoint, this.removePoints)
+            remove: oneOrMany(this.removePoint, this.removePoints),
+            getInRadius: this.getPointsInRadius.bind(this)
         };
         this.lineMethods = {
             get: oneOrManyToArray(this.getLine, this.getLines),
             add: oneOrMany(this.addLine, this.addLines),
             remove: oneOrMany(this.removeLine, this.removeLines),
             getFromPoints: oneOrMany(this.getLinesFromPoint, this.getLinesFromPoints),
-            erase: oneOrMany(this.eraseLine, this.eraseLines)
+            erase: oneOrMany(this.eraseLine, this.eraseLines),
+            getInRadius: this.getLinesInRadius.bind(this)
         }
     }
 
@@ -228,6 +230,25 @@ class Scene implements Line2D.Scene {
         );
 
         return new Scene(points, lines);
+    }
+
+    private getPointsInRadius(pos, r) {
+        var dist = (p) => {
+            var x = p.x - pos.x;
+            var y = p.y - pos.y;
+            return x*x + y*y
+        }
+        return this._points
+            .toKeyedSeq()
+            .map<number>(dist)
+            .filter( d => d < r*r )
+            .sort()
+            .map<Point.ID>( (_,id) => id )
+            .toArray();
+    }
+
+    private getLinesInRadius(r) {
+        return [];
     }
 }
 
