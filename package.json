@@ -1,8 +1,8 @@
 {
-  "name": "Line2D",
+  "name": "line2d",
   "version": "0.0.0",
   "description": "Minimal and parallel physics simulator",
-  "main": "dist/line2d.js",
+  "main": "build/line2d.js",
   "dependencies": {
     "immutable": "^3.3.0"
   },
