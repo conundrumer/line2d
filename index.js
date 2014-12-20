@@ -22,7 +22,7 @@ var s1 = emptyScene
     ]))
 
 console.log('stringify', JSON.stringify(s1));
-console.log('toJS', s1.toJS());
+console.log('toJSON', s1.toJSON());
 console.log('removeLine',JSON.stringify(s1.lines.remove('ab')));
 console.log('removeLines',JSON.stringify(s1.lines.remove(['ab','bc'])));
 console.log('removePoint',JSON.stringify(s1.points.remove('a')));
@@ -35,10 +35,10 @@ console.log('getLines', s1.lines.get(['bc','ca']))
 console.log('getLinesFromPoint', s1.lines.selectFromPoints('a'))
 console.log('getLinesFromPoints', s1.lines.selectFromPoints(['b','c']))
 
-console.log('eraseLine', s1.lines.erase('ab').toJS())
-console.log('eraseLine', s1.lines.erase('ab').lines.erase('bc').toJS())
-console.log('eraseLines', s1.lines.erase(['bc','ca']).toJS())
-console.log('eraseLines', s1.lines.erase(['bc','ca','ab']).toJS())
+console.log('eraseLine', s1.lines.erase('ab').toJSON())
+console.log('eraseLine', s1.lines.erase('ab').lines.erase('bc').toJSON())
+console.log('eraseLines', s1.lines.erase(['bc','ca']).toJSON())
+console.log('eraseLines', s1.lines.erase(['bc','ca','ab']).toJSON())
 
 console.log('getPointsInRadius', s1.points.selectInRadius({x: 0.1, y: 0}, 1))
 console.log('getLinesInRadius', s1.lines.selectInRadius({x: 0.5, y: 0.48}, 0.49))

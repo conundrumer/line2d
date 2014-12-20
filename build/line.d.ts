@@ -3,6 +3,10 @@ import Point = require('./point');
 declare class Line {
     private pids;
     constructor(pids: [Point.ID, Point.ID]);
+    toJSON(id: Line.ID): {
+        id: string;
+        pq: Line.EndPoints;
+    };
     p: Point.ID;
     q: Point.ID;
     pq: Line.EndPoints;

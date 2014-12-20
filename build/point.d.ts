@@ -6,6 +6,10 @@ declare class Point {
     private pos;
     private lineSet;
     constructor(pos: Vec.Tuple, lineSet: Set<Line.ID>);
+    toJSON(id: Point.ID): {
+        id: string;
+        pos: Vec.Obj;
+    };
     x: number;
     y: number;
     xy: Vec.Obj;

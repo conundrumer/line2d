@@ -5,6 +5,12 @@ var Point = (function () {
         this.pos = pos;
         this.lineSet = lineSet;
     }
+    Point.prototype.toJSON = function (id) {
+        return {
+            id: id,
+            pos: this.xy
+        };
+    };
     Object.defineProperty(Point.prototype, "x", {
         get: function () {
             return this.pos[0];

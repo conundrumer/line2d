@@ -40,34 +40,29 @@ declare module Line2D {
         };
     }
     interface SceneObj {
-        points: {
-            [pids: string]: PointObj;
-        };
-        lines: {
-            [lids: string]: LineObj;
-        };
+        points: Array<PointObj>;
+        lines: Array<LineObj>;
     }
     function toPoints(pointProps: Array<[PointID, VecTuple]>): PointObj[];
     function toLines(lineProps: Array<[LineID, [PointID, PointID]]>): LineObj[];
+    interface Entities<ID, Obj> {
+        get(id: ID | Array<ID>): Array<Obj>;
+        add(entity: Obj | Array<Obj>): Scene;
+        remove(id: ID | Array<ID>): Scene;
+        selectInRadius(pos: VecObj, radius: number): Array<ID>;
+    }
+    interface Points extends Entities<PointID, PointObj> {
+    }
+    interface Lines extends Entities<LineID, LineObj> {
+        selectFromPoints(id: PointID | Array<PointID>): Array<LineID>;
+        erase(id: LineID | Array<LineID>): Scene;
+    }
     interface Scene {
-        toJS(): SceneObj;
-        getPoint(pid: PointID): PointObj;
-        getPoints(pids: Array<PointID>): Array<PointObj>;
-        getLine(lid: LineID): LineObj;
-        getLines(lids: Array<LineID>): Array<LineObj>;
-        getLinesFromPoint(pid: PointID): Array<LineID>;
-        getLinesFromPoints(pids: Array<PointID>): Array<LineID>;
-        addPoint(point: PointObj): Scene;
-        addPoints(points: Array<PointObj>): Scene;
-        addLine(line: LineObj): Scene;
-        addLines(lines: Array<LineObj>): Scene;
-        removePoint(pid: PointID): Scene;
-        removePoints(pids: Array<PointID>): Scene;
-        removeLine(lid: LineID): Scene;
-        removeLines(lids: Array<LineID>): Scene;
-        eraseLine(lid: LineID): Scene;
-        eraseLines(lids: Array<LineID>): Scene;
+        toJSON(): SceneObj;
+        points: Points;
+        lines: Lines;
     }
     function newScene(): Scene;
+    function makeSceneFromJSON(s: SceneObj): Scene;
 }
 export = Line2D;

@@ -46,12 +46,8 @@ module Line2D {
         }
     }
     export interface SceneObj {
-        points: {
-            [pids: string]: PointObj;
-        };
-        lines: {
-            [lids: string]: LineObj;
-        };
+        points: Array<PointObj>;
+        lines: Array<LineObj>;
     }
 
     export function toPoints(pointProps: Array<[PointID, VecTuple]>) : PointObj[] {
@@ -90,13 +86,16 @@ module Line2D {
     }
 
     export interface Scene {
-        toJS(): SceneObj;
+        toJSON(): SceneObj;
 
         points: Points;
         lines: Lines;
     }
     export function newScene() : Scene {
         return Scene.create();
+    }
+    export function makeSceneFromJSON(s: SceneObj) : Scene {
+        return Scene.create().points.add(s.points).lines.add(s.lines);
     }
 }
 

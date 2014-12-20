@@ -29,6 +29,10 @@ var Line2D;
         return Scene.create();
     }
     Line2D.newScene = newScene;
+    function makeSceneFromJSON(s) {
+        return Scene.create().points.add(s.points).lines.add(s.lines);
+    }
+    Line2D.makeSceneFromJSON = makeSceneFromJSON;
 })(Line2D || (Line2D = {}));
 // https://github.com/umdjs/umd
 if (typeof module === "object" && module.exports) {

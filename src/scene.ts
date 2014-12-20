@@ -84,10 +84,10 @@ class Scene implements Line2D.Scene {
         return this.lineMethods;
     }
 
-    toJS(): Line2D.SceneObj {
+    toJSON(): Line2D.SceneObj {
         return {
-            points: this._points.map( point => point.xy ).toJS(),
-            lines: this._lines.map( line => line.pq ).toJS()
+            points: this._points.map( (point, id) => point.toJSON(id) ).toArray(),
+            lines: this._lines.map( (line, id) => line.toJSON(id) ).toArray()
         };
     }
 

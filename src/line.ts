@@ -4,6 +4,13 @@ import Point = require('./point');
 class Line {
     constructor(private pids: [Point.ID, Point.ID]) { }
 
+    toJSON(id: Line.ID) {
+        return {
+            id: id,
+            pq: this.pq
+        }
+    }
+
     get p() : Point.ID {
         return this.pids[0]
     }

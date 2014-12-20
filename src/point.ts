@@ -6,6 +6,13 @@ import Vec = require('./vec');
 class Point {
     constructor(private pos: Vec.Tuple, private lineSet: Set<Line.ID>) { }
 
+    toJSON(id: Point.ID) {
+        return {
+            id: id,
+            pos: this.xy
+        }
+    }
+
     get x() : number {
         return this.pos[0]
     }
