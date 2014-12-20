@@ -132,7 +132,7 @@ class Scene implements Line2D.Scene {
         return new Scene(points, this._lines);
     }
 
-    addPoints(points: Array<Line2D.PointObj>) : Scene {
+    private addPoints(points: Array<Line2D.PointObj>): Scene {
         var newPoints = Map<Point.ID, Point>(
             points.map( p => [p.id, Point.create(p.pos)] )
         );

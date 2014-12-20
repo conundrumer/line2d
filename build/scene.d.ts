@@ -17,7 +17,7 @@ declare class Scene implements Line2D.Scene {
     private selectLinesFromPoint(pid);
     private selectLinesFromPoints(pids);
     private addPoint(point);
-    addPoints(points: Array<Line2D.PointObj>): Scene;
+    private addPoints(points);
     private addLine(line);
     private addLines(lines);
     private removeLine(lid);
