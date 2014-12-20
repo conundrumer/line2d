@@ -335,12 +335,14 @@ var Scene = (function () {
     };
     Scene.prototype.removeLine = function (lid) {
         var pq = this._lines.get(lid).pq;
+        if (!pq)
+            return this;
         var points = this._points.update(pq.p, function (p) { return p.removeLine(lid); }).update(pq.q, function (p) { return p.removeLine(lid); });
         return new Scene(points, this._lines.remove(lid));
     };
     Scene.prototype.removeLines = function (lids) {
         var _this = this;
-        var linePointsMap = Map(lids.map(function (lid) { return [lid, _this._lines.get(lid)]; }));
+        var linePointsMap = Map(lids.map(function (lid) { return [lid, _this._lines.get(lid)]; }).filter(function (line) { return !!line[1]; }));
         var updatedPoints = toPointLinesSeq(linePointsMap).map(function (lines, pid) { return _this._points.get(pid).removeLines(lines); }).toMap();
         // maps don't have subtract/difference so...
         var lines = this._lines.withMutations(function (map) { return lids.forEach(function (lid) { return map.remove(lid); }); });
@@ -348,12 +350,14 @@ var Scene = (function () {
     };
     Scene.prototype.removePoint = function (pid) {
         var point = this._points.get(pid);
+        if (!point)
+            return this;
         var scene = this.removeLines(point.lines.toJS());
         return new Scene(scene._points.remove(pid), scene._lines);
     };
     Scene.prototype.removePoints = function (pids) {
         var _this = this;
-        var lines = pids.map(function (pid) { return _this._points.get(pid).lines; }).reduce(function (lines1, lines2) { return lines1.union(lines2); });
+        var lines = pids.map(function (pid) { return _this._points.get(pid); }).filter(function (point) { return !!point; }).map(function (point) { return point.lines; }).reduce(function (lines1, lines2) { return lines1.union(lines2); });
         var scene = this.removeLines(lines.toJS());
         // maps don't have subtract/difference so...
         var points = scene._points.withMutations(function (map) { return pids.forEach(function (pid) { return map.remove(pid); }); });
@@ -361,6 +365,8 @@ var Scene = (function () {
     };
     Scene.prototype.eraseLine = function (lid) {
         var pq = this._lines.get(lid).pq;
+        if (!pq)
+            return this;
         var points = this._points.update(pq.p, function (p) { return p.removeLine(lid); }).update(pq.q, function (p) { return p.removeLine(lid); });
         points = points.get(pq.p).lines.count() > 0 ? points : points.remove(pq.p);
         points = points.get(pq.q).lines.count() > 0 ? points : points.remove(pq.q);
@@ -368,7 +374,7 @@ var Scene = (function () {
     };
     Scene.prototype.eraseLines = function (lids) {
         var _this = this;
-        var linePointsMap = Map(lids.map(function (lid) { return [lid, _this._lines.get(lid)]; }));
+        var linePointsMap = Map(lids.map(function (lid) { return [lid, _this._lines.get(lid)]; }).filter(function (line) { return !!line[1]; }));
         var pointLinesSeq = toPointLinesSeq(linePointsMap);
         var updatedPoints = pointLinesSeq.map(function (lines, pid) { return _this._points.get(pid).removeLines(lines); }).toMap();
         var points = this._points.merge(updatedPoints);

@@ -183,6 +183,7 @@ class Scene implements Line2D.Scene {
 
     private removeLine(lid: Line.ID): Scene {
         var pq = this._lines.get(lid).pq;
+        if (!pq) return this;
         var points = this._points
             .update(pq.p, p => p.removeLine(lid))
             .update(pq.q, p => p.removeLine(lid));
@@ -190,9 +191,10 @@ class Scene implements Line2D.Scene {
     }
 
     private removeLines(lids: Array<Line.ID>): Scene {
-        var linePointsMap = Map<Line.ID, Line.EndPoints>(lids.map(lid =>
-            [lid, this._lines.get(lid)]
-        ));
+        var linePointsMap = Map<Line.ID, Line.EndPoints>(lids
+            .map( lid => [lid, this._lines.get(lid)] )
+            .filter( line => !!line[1] )
+        );
 
         var updatedPoints: Point.Map = toPointLinesSeq(linePointsMap)
             .map<Point>( (lines, pid) => this._points.get(pid).removeLines(lines) )
@@ -208,6 +210,7 @@ class Scene implements Line2D.Scene {
 
     private removePoint(pid: Point.ID): Scene {
         var point = this._points.get(pid);
+        if (!point) return this;
 
         var scene = this.removeLines(point.lines.toJS());
 
@@ -216,7 +219,9 @@ class Scene implements Line2D.Scene {
 
     private removePoints(pids: Array<Point.ID>): Scene {
         var lines = pids
-            .map(pid => this._points.get(pid).lines)
+            .map(pid => this._points.get(pid))
+            .filter(point => !!point)
+            .map(point => point.lines)
             .reduce( (lines1, lines2) => lines1.union(lines2) )
 
         var scene = this.removeLines(lines.toJS());
@@ -231,6 +236,7 @@ class Scene implements Line2D.Scene {
 
     private eraseLine(lid: Line.ID): Scene {
         var pq = this._lines.get(lid).pq;
+        if (!pq) return this;
         var points = this._points
             .update(pq.p, p => p.removeLine(lid))
             .update(pq.q, p => p.removeLine(lid));
@@ -242,9 +248,10 @@ class Scene implements Line2D.Scene {
     }
 
     private eraseLines(lids: Array<Line.ID>): Scene {
-        var linePointsMap = Map<Line.ID, Line.EndPoints>(lids.map(lid =>
-            [lid, this._lines.get(lid)]
-        ));
+        var linePointsMap = Map<Line.ID, Line.EndPoints>(lids
+            .map(lid => [lid, this._lines.get(lid)] )
+            .filter( line => !!line[1] )
+        );
 
         var pointLinesSeq = toPointLinesSeq(linePointsMap);
 
