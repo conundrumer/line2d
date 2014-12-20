@@ -40,8 +40,12 @@ declare module Line2D {
         };
     }
     interface SceneObj {
-        points: Array<PointObj>;
-        lines: Array<LineObj>;
+        points: {
+            [pid: string]: PointObj;
+        };
+        lines: {
+            [lid: string]: LineObj;
+        };
     }
     function toPoints(pointProps: Array<[PointID, VecTuple]>): PointObj[];
     function toLines(lineProps: Array<[LineID, [PointID, PointID]]>): LineObj[];

@@ -76,8 +76,8 @@ var Scene = (function () {
     });
     Scene.prototype.toJSON = function () {
         return {
-            points: this._points.map(function (point, id) { return point.toJSON(id); }).toArray(),
-            lines: this._lines.map(function (line, id) { return line.toJSON(id); }).toArray()
+            points: this._points.map(function (point, id) { return point.toJSON(id); }).toJS(),
+            lines: this._lines.map(function (line, id) { return line.toJSON(id); }).toJS()
         };
     };
     Scene.prototype.getPoint = function (pid) {

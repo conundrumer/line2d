@@ -30,7 +30,9 @@ var Line2D;
     }
     Line2D.newScene = newScene;
     function makeSceneFromJSON(s) {
-        return Scene.create().points.add(s.points).lines.add(s.lines);
+        var points = Object.keys(s.points).map(function (id) { return s.points[id]; });
+        var lines = Object.keys(s.lines).map(function (id) { return s.lines[id]; });
+        return Scene.create().points.add(points).lines.add(lines);
     }
     Line2D.makeSceneFromJSON = makeSceneFromJSON;
 })(Line2D || (Line2D = {}));
