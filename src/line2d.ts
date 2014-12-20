@@ -54,24 +54,24 @@ module Line2D {
         };
     }
 
-    export function toPoints(pointProps: Array<[PointID, VecTuple]>) : PointObj[] {
-        return pointProps.map( p => { return { // can't use {{}} for some reason
+    export function toPoint(p: [PointID, VecTuple]) : PointObj {
+        return {
             id: p[0],
             pos: {
                 x: p[1][0],
                 y: p[1][1]
             }
-        }} );
+        };
     }
 
-    export function toLines(lineProps: Array<[LineID, [PointID, PointID]]>) : LineObj[] {
-        return lineProps.map( l => { return {
+    export function toLine(l: [LineID, [PointID, PointID]]) : LineObj {
+        return {
             id: l[0],
             pq: {
                 p: l[1][0],
                 q: l[1][1]
             }
-        }} );
+        };
     }
 
     export interface Entities<ID, Obj> {

@@ -62,30 +62,26 @@ module.exports = Line;
 var Scene = require('./scene');
 var Line2D;
 (function (Line2D) {
-    function toPoints(pointProps) {
-        return pointProps.map(function (p) {
-            return {
-                id: p[0],
-                pos: {
-                    x: p[1][0],
-                    y: p[1][1]
-                }
-            };
-        });
+    function toPoint(p) {
+        return {
+            id: p[0],
+            pos: {
+                x: p[1][0],
+                y: p[1][1]
+            }
+        };
     }
-    Line2D.toPoints = toPoints;
-    function toLines(lineProps) {
-        return lineProps.map(function (l) {
-            return {
-                id: l[0],
-                pq: {
-                    p: l[1][0],
-                    q: l[1][1]
-                }
-            };
-        });
+    Line2D.toPoint = toPoint;
+    function toLine(l) {
+        return {
+            id: l[0],
+            pq: {
+                p: l[1][0],
+                q: l[1][1]
+            }
+        };
     }
-    Line2D.toLines = toLines;
+    Line2D.toLine = toLine;
     function newScene() {
         return Scene.create();
     }

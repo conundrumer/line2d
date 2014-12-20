@@ -4,22 +4,22 @@ if (require) {
 } else {
     Line2D = window.Line2D
 }
-var P = Line2D.toPoints;
-var L = Line2D.toLines;
+var P = Line2D.toPoint;
+var L = Line2D.toLine;
 
 var emptyScene = Line2D.newScene();
 
 var s1 = emptyScene
-    .points.add(P([['a', [0, 0]]])[0])
-    .points.add(P([
+    .points.add(P(['a', [0, 0]]))
+    .points.add([
         ['b', [0, 1]],
         ['c', [1, 0]]
-    ]))
-    .lines.add(L([['ab', ['a', 'b']]])[0])
-    .lines.add(L([
+    ].map(P))
+    .lines.add(L(['ab', ['a', 'b']]))
+    .lines.add([
         ['bc', ['b', 'c']],
         ['ca', ['c', 'a']]
-    ]))
+    ].map(L))
 
 console.log('stringify', JSON.stringify(s1));
 console.log('toJSON', s1.toJSON());

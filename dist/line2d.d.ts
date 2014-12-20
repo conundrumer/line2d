@@ -47,8 +47,8 @@ declare module Line2D {
             [lid: string]: LineObj;
         };
     }
-    function toPoints(pointProps: Array<[PointID, VecTuple]>): PointObj[];
-    function toLines(lineProps: Array<[LineID, [PointID, PointID]]>): LineObj[];
+    function toPoint(p: [PointID, VecTuple]): PointObj;
+    function toLine(l: [LineID, [PointID, PointID]]): LineObj;
     interface Entities<ID, Obj> {
         get(id: ID | Array<ID>): {
             [id: string]: Obj;
