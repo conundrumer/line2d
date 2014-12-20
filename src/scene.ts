@@ -6,6 +6,8 @@ import Point = require('./point');
 import Line = require('./line');
 import Vec = require('./vec');
 
+function dict() {return Object.create(null); }
+
 // pls refactor
 // http://stackoverflow.com/questions/849211/shortest-distance-between-a-point-and-a-line-segment
 function sqr(x) { return x * x }
@@ -52,19 +54,19 @@ class Scene implements Line2D.Scene {
                 ? manyFn.call(this, arr)
                 : oneFn.call(this, arr)
 
-        var oneOrManyToArray = (oneFn, manyFn) =>
-            (arr) => (arr instanceof Array)
-                ? manyFn.call(this, arr)
-                : [oneFn.call(this, arr)]
+        // var oneOrManyToArray = (oneFn, manyFn) =>
+        //     (arr) => (arr instanceof Array)
+        //         ? manyFn.call(this, arr)
+        //         : [oneFn.call(this, arr)]
 
         this.pointMethods = {
-            get: oneOrManyToArray(this.getPoint, this.getPoints),
+            get: oneOrMany(this.getPoint, this.getPoints),
             add: oneOrMany(this.addPoint, this.addPoints),
             remove: oneOrMany(this.removePoint, this.removePoints),
             selectInRadius: this.selectPointsInRadius.bind(this)
         };
         this.lineMethods = {
-            get: oneOrManyToArray(this.getLine, this.getLines),
+            get: oneOrMany(this.getLine, this.getLines),
             add: oneOrMany(this.addLine, this.addLines),
             remove: oneOrMany(this.removeLine, this.removeLines),
             selectFromPoints: oneOrMany(
@@ -91,28 +93,44 @@ class Scene implements Line2D.Scene {
         };
     }
 
-    private getPoint(pid: Point.ID): Line2D.PointObj {
+    private getPoint(pid: Point.ID): {[pid: string]: Line2D.PointObj} {
         var point = this._points.get(pid);
-        return point ? {
-            id: pid,
-            pos: point.xy
-        } : null
+        if (point) {
+            var out = dict()
+            out[pid] = point.toJSON(pid);
+            return out;
+        }
+        return dict()
     }
 
-    private getPoints(pids: Array<Point.ID>): Array<Line2D.PointObj> {
-        return pids.map(p => this.getPoint(p));
+    private getPoints(pids: Array<Point.ID>): {[pid: string]: Line2D.PointObj} {
+        var out = dict()
+        pids.forEach(pid => {
+                var point = this._points.get(pid);
+                if (point)
+                    out[pid] = point.toJSON(pid)
+            })
+        return out;
     }
 
-    private getLine(lid: Line.ID): Line2D.LineObj {
+    private getLine(lid: Line.ID): {[lid: string]: Line2D.LineObj} {
         var line = this._lines.get(lid);
-        return line ? {
-            id: lid,
-            pq: line.pq
-        } : null
+        if (line) {
+            var out = dict()
+            out[lid] = line.toJSON(lid);
+            return out;
+        }
+        return dict()
     }
 
-    private getLines(lids: Array<Line.ID>): Array<Line2D.LineObj> {
-        return lids.map(l => this.getLine(l));
+    private getLines(lids: Array<Line.ID>): {[lid: string]: Line2D.LineObj} {
+        var out = dict()
+        lids.forEach(lid => {
+                var line = this._lines.get(lid);
+                if (line)
+                    out[lid] = line.toJSON(lid)
+            })
+        return out;
     }
 
     private selectLinesFromPoint(pid: Point.ID): Array<Line.ID> {

@@ -187,6 +187,9 @@ var Map = require('./im/map');
 var Set = require('./im/set');
 var Point = require('./point');
 var Line = require('./line');
+function dict() {
+    return Object.create(null);
+}
 // pls refactor
 // http://stackoverflow.com/questions/849211/shortest-distance-between-a-point-and-a-line-segment
 function sqr(x) {
@@ -229,15 +232,18 @@ var Scene = (function () {
         this._points = _points;
         this._lines = _lines;
         var oneOrMany = function (oneFn, manyFn) { return function (arr) { return (arr instanceof Array) ? manyFn.call(_this, arr) : oneFn.call(_this, arr); }; };
-        var oneOrManyToArray = function (oneFn, manyFn) { return function (arr) { return (arr instanceof Array) ? manyFn.call(_this, arr) : [oneFn.call(_this, arr)]; }; };
+        // var oneOrManyToArray = (oneFn, manyFn) =>
+        //     (arr) => (arr instanceof Array)
+        //         ? manyFn.call(this, arr)
+        //         : [oneFn.call(this, arr)]
         this.pointMethods = {
-            get: oneOrManyToArray(this.getPoint, this.getPoints),
+            get: oneOrMany(this.getPoint, this.getPoints),
             add: oneOrMany(this.addPoint, this.addPoints),
             remove: oneOrMany(this.removePoint, this.removePoints),
             selectInRadius: this.selectPointsInRadius.bind(this)
         };
         this.lineMethods = {
-            get: oneOrManyToArray(this.getLine, this.getLines),
+            get: oneOrMany(this.getLine, this.getLines),
             add: oneOrMany(this.addLine, this.addLines),
             remove: oneOrMany(this.removeLine, this.removeLines),
             selectFromPoints: oneOrMany(this.selectLinesFromPoint, this.selectLinesFromPoints),
@@ -267,25 +273,41 @@ var Scene = (function () {
     };
     Scene.prototype.getPoint = function (pid) {
         var point = this._points.get(pid);
-        return point ? {
-            id: pid,
-            pos: point.xy
-        } : null;
+        if (point) {
+            var out = dict();
+            out[pid] = point.toJSON(pid);
+            return out;
+        }
+        return dict();
     };
     Scene.prototype.getPoints = function (pids) {
         var _this = this;
-        return pids.map(function (p) { return _this.getPoint(p); });
+        var out = dict();
+        pids.forEach(function (pid) {
+            var point = _this._points.get(pid);
+            if (point)
+                out[pid] = point.toJSON(pid);
+        });
+        return out;
     };
     Scene.prototype.getLine = function (lid) {
         var line = this._lines.get(lid);
-        return line ? {
-            id: lid,
-            pq: line.pq
-        } : null;
+        if (line) {
+            var out = dict();
+            out[lid] = line.toJSON(lid);
+            return out;
+        }
+        return dict();
     };
     Scene.prototype.getLines = function (lids) {
         var _this = this;
-        return lids.map(function (l) { return _this.getLine(l); });
+        var out = dict();
+        lids.forEach(function (lid) {
+            var line = _this._lines.get(lid);
+            if (line)
+                out[lid] = line.toJSON(lid);
+        });
+        return out;
     };
     Scene.prototype.selectLinesFromPoint = function (pid) {
         var point = this._points.get(pid);

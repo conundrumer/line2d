@@ -50,7 +50,9 @@ declare module Line2D {
     function toPoints(pointProps: Array<[PointID, VecTuple]>): PointObj[];
     function toLines(lineProps: Array<[LineID, [PointID, PointID]]>): LineObj[];
     interface Entities<ID, Obj> {
-        get(id: ID | Array<ID>): Array<Obj>;
+        get(id: ID | Array<ID>): {
+            [id: string]: Obj;
+        };
         add(entity: Obj | Array<Obj>): Scene;
         remove(id: ID | Array<ID>): Scene;
         selectInRadius(pos: VecObj, radius: number): Array<ID>;

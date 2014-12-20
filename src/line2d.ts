@@ -75,7 +75,7 @@ module Line2D {
     }
 
     export interface Entities<ID, Obj> {
-        get(id: ID | Array<ID>): Array<Obj>;
+        get(id: ID | Array<ID>): {[id: string]: Obj};
         add(entity: Obj | Array<Obj>): Scene;
         remove(id: ID | Array<ID>): Scene;
         selectInRadius(pos: VecObj, radius: number): Array<ID>;
